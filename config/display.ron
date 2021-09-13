@@ -1,0 +1,9 @@
+/*!
+    @import /amethyst_window/src/config.rs#DisplayConfig
+    DisplayConfig
+*/
+
+(
+  title: "Condottiere",
+  dimensions: Some((1000, 1000)),
+)
