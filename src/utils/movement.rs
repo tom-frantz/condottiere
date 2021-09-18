@@ -1,4 +1,4 @@
-use crate::state::demo::PIXEL_SIZE;
+use crate::resources::*;
 use amethyst::core::Transform;
 use std::f32::consts::PI;
 

@@ -9,6 +9,7 @@ amethyst = {version = "^0.15", features = ["no-slow-safety-checks"]}
 rand = "^0.8"
 bresenham = "^0.1"
 petgraph = "^0.6"
+approx = "0.5.0"
 
 [features]
 default = ["vulkan"]

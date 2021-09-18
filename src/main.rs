@@ -10,6 +10,9 @@ use amethyst::{
     utils::application_root_dir,
 };
 
+#[macro_use]
+extern crate approx;
+
 mod components;
 mod resources;
 mod state;

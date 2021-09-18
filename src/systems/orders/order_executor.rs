@@ -38,7 +38,7 @@ impl<'s> System<'s> for OrderExecutorSystem {
                     } else {
                     }
 
-                    opponent_transform.translation().x
+                    // opponent_transform.translation().x
                 }
                 Retreat => {}
                 MoveTo((x, y)) => {}

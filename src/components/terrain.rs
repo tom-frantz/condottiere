@@ -5,11 +5,16 @@ use std::any::Any;
 pub const TILE_REAL_SIZE: f32 = 100.0; // The tile's real world equivalent size.
 
 #[derive(Default)]
-pub struct Terrain {}
+pub struct Terrain {
+    pub height: f32,
+}
 
 impl Terrain {
-    pub fn new() -> Terrain {
-        Terrain {}
+    pub fn new(height: f32) -> Terrain {
+        Terrain {
+            height,
+            ..Terrain::default()
+        }
     }
 }
 
