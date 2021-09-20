@@ -1,3 +1,4 @@
+use crate::components::equipment::EquipmentComponent;
 use crate::systems::orders::Orders;
 use crate::utils::movement::get_real_location;
 use amethyst::core::ecs::{Component, DenseVecStorage, Entity, World};
@@ -43,6 +44,7 @@ pub struct UnitBuilder {
     pos: (f32, f32),
     colour: Tint,
     sprite: Option<SpriteRender>,
+    equipment: EquipmentComponent,
 }
 
 impl UnitBuilder {
@@ -66,6 +68,11 @@ impl UnitBuilder {
 
     pub fn sprite(mut self, sprite: SpriteRender) -> Self {
         self.sprite = Some(sprite);
+        self
+    }
+
+    pub fn equipment(mut self, equipment: EquipmentComponent) -> Self {
+        self.equipment = equipment;
         self
     }
 

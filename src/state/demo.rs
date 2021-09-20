@@ -1,4 +1,4 @@
-use crate::state::initialize_camera;
+use crate::utils::camera::initialize_camera;
 use crate::utils::sprites::load_sprite_sheet;
 
 use crate::components::terrain::Terrain;
@@ -9,6 +9,8 @@ use crate::resources::*;
 use crate::systems::orders::Orders;
 use crate::utils::movement::get_real_location;
 
+use crate::components::equipment::EquipmentComponent;
+use crate::state::helpers::equipment::get_equipment;
 use amethyst::assets::Handle;
 use amethyst::core::ecs::world::Generation;
 use amethyst::core::Transform;
@@ -39,16 +41,21 @@ impl DemoState {
         }
 
         {
+            let (_, _, pukka_1, pukka_2, _, _) = get_equipment();
+
             let player_unit = Unit::build_entity()
                 .pos(1, 1)
-                .hp(50)
+                .hp(1000)
                 .team(Team::Player)
                 .sprite(sprite.clone())
+                .equipment(EquipmentComponent::new(vec![(pukka_2, 100)]))
                 .create(world);
             let enemy_unit = Unit::build_entity()
                 .pos(8, 8)
+                .hp(1000)
                 .team(Team::Enemy)
                 .sprite(sprite)
+                .equipment(EquipmentComponent::new(vec![(pukka_1, 100)]))
                 .create(world);
 
             let mut units = world.write_storage::<Unit>();
@@ -62,41 +69,6 @@ impl DemoState {
                 .unwrap()
                 .set_objective(Orders::Attack(player_unit));
         }
-
-        let vision_registry = &*world.read_resource::<VisionRegistry>();
-        let map_registry = &*world.read_resource::<MapRegistry>();
-
-        let vision_point: (usize, usize) = (5, 5);
-
-        let visible = vision_registry.get_visible(vision_point).unwrap();
-
-        let mut tints = world.write_component::<Tint>();
-
-        visible
-            .iter()
-            .map(|(x, y)| {
-                // println!("{:?} {:?}", x, y);
-                map_registry.get_tile(*x, *y).unwrap().0.clone()
-            })
-            .for_each(|(entity)| {
-                let tint = tints.get_mut(entity).unwrap();
-                tint.0.blue = 1.0;
-                tint.0.green = 1.0;
-            });
-
-        let mut vis_point = tints
-            .get_mut(
-                map_registry
-                    .get_tile(vision_point.0, vision_point.1)
-                    .unwrap()
-                    .0
-                    .clone(),
-            )
-            .unwrap()
-            .0;
-        vis_point.red = 0.0;
-        vis_point.green = 0.0;
-        vis_point.blue = 0.0;
     }
 }
 

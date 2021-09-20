@@ -11,11 +11,16 @@ pub enum FireType {
 pub struct WeaponProperties {
     damage: f32,
     range: f32,
+    manpower: Option<usize>,
 }
 
 impl WeaponProperties {
-    pub(crate) fn new(damage: f32, range: f32) -> Self {
-        WeaponProperties { damage, range }
+    pub fn new(damage: f32, range: f32, manpower: Option<usize>) -> Self {
+        WeaponProperties {
+            damage,
+            range,
+            manpower,
+        }
     }
 }
 
@@ -55,7 +60,7 @@ impl EquipmentModel {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct EquipmentComponent {
     equipment: Vec<(EquipmentModel, usize)>, // amount, model
 }
