@@ -2,6 +2,8 @@ use crate::resources::*;
 use amethyst::core::Transform;
 use std::f32::consts::PI;
 
+pub type MapPoint = (usize, usize);
+
 pub fn get_real_location(x: usize, y: usize) -> (f32, f32) {
     (x as f32 * PIXEL_SIZE, y as f32 * PIXEL_SIZE)
 }
