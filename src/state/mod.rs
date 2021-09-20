@@ -4,6 +4,7 @@ use amethyst::prelude::*;
 use amethyst::renderer::Camera;
 
 pub mod demo;
+mod helpers;
 
 pub fn initialize_camera(world: &mut World, dimensions: (f32, f32), offset: f32) -> Entity {
     // Setup camera in a way that our screen covers whole arena and (0, 0) is in the bottom left.
