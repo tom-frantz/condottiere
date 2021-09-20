@@ -14,6 +14,8 @@ pub mod map_generators;
 pub mod map_registry;
 pub mod vision_registry;
 
+pub mod faction_registry;
+
 #[derive(Clone, Debug, Copy)]
 struct HeightPoint {
     pub x: f32,
