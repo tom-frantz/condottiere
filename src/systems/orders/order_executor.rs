@@ -1,6 +1,8 @@
 use crate::components::terrain::{Terrain, TILE_REAL_SIZE};
 use crate::components::unit::Unit;
 use crate::systems::orders::Orders::*;
+use crate::systems::rendering::projectiles::ProjectileEvents;
+use amethyst::core::ecs::shrev::EventChannel;
 use amethyst::core::ecs::*;
 use amethyst::core::{Time, Transform};
 use amethyst::prelude::*;
@@ -18,11 +20,15 @@ impl<'s> System<'s> for OrderExecutorSystem {
         WriteStorage<'s, Unit>,
         ReadStorage<'s, Transform>,
         ReadStorage<'s, Terrain>,
+        Write<'s, EventChannel<ProjectileEvents>>,
         Entities<'s>,
         Read<'s, Time>,
     );
 
-    fn run(&mut self, (mut units, mut transforms, mut terrain, entities, time): Self::SystemData) {
+    fn run(
+        &mut self,
+        (mut units, mut transforms, mut terrain, mut projectile_events, entities, time): Self::SystemData,
+    ) {
         let mut actions: Vec<Action> = Vec::new();
 
         for (unit, transform, entity) in (&units, &transforms, &*entities).join() {

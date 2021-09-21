@@ -55,6 +55,11 @@ fn main() -> amethyst::Result<()> {
             "OrderExecutorSystem",
             &["OrderCreatorSystem"],
         )
+        .with(
+            systems::rendering::projectiles::ProjectileSystem::default(),
+            "ProjectileRenderingSystem",
+            &["OrderExecutorSystem"],
+        )
         .with_bundle(TransformBundle::new())?;
 
     // #TODO fix state
