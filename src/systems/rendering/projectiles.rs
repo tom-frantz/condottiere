@@ -6,9 +6,11 @@ use amethyst::core::{Time, Transform};
 use amethyst::derive::SystemDesc;
 use amethyst::prelude::*;
 
-#[derive(Default, Debug, SystemDesc)]
+#[derive(Debug, SystemDesc)]
+#[system_desc(name(ProjectileSystemDesc))]
 pub struct ProjectileSystem {
-    reader_id: Option<ReaderId<ProjectileEvents>>,
+    #[system_desc(event_channel_reader)]
+    reader_id: ReaderId<ProjectileEvents>,
 }
 
 #[derive(Debug)]
@@ -17,14 +19,8 @@ pub enum ProjectileEvents {
 }
 
 impl ProjectileSystem {
-    pub fn new(world: &mut World) -> Self {
-        <Self as System<'_>>::SystemData::setup(world);
-        let reader_id = world
-            .fetch_mut::<EventChannel<ProjectileEvents>>()
-            .register_reader();
-        Self {
-            reader_id: Some(reader_id),
-        }
+    pub fn new(reader_id: ReaderId<ProjectileEvents>) -> Self {
+        Self { reader_id }
     }
 }
 
@@ -41,7 +37,7 @@ impl<'s> System<'s> for ProjectileSystem {
         let delta = time.delta_seconds();
 
         // TODO fix the initialization so this doesn't break
-        for event in events.read(&mut self.reader_id.as_mut().unwrap()) {
+        for event in events.read(&mut self.reader_id) {
             match event {
                 ProjectileEvents::Create(projectile) => {
                     let mut transform = Transform::default();
