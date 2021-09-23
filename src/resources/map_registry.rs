@@ -1,5 +1,6 @@
 use crate::components::terrain::Terrain;
 use crate::resources::*;
+use crate::utils::camera::CameraHeight;
 use amethyst::core::ecs::Entity;
 use amethyst::core::Transform;
 use amethyst::prelude::*;
@@ -50,7 +51,7 @@ impl MapRegistry {
                 transform.set_translation_xyz(
                     (x as f32 * PIXEL_SIZE),
                     (y as f32 * PIXEL_SIZE),
-                    -1.0,
+                    CameraHeight::Terrain as u8 as f32,
                 );
 
                 let mut tint = Tint::default();

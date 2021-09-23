@@ -57,8 +57,8 @@ fn main() -> amethyst::Result<()> {
             "OrderExecutorSystem",
             &["OrderCreatorSystem"],
         )
-        .with_system_desc(
-            systems::rendering::projectiles::ProjectileSystemDesc::default(),
+        .with(
+            systems::rendering::projectiles::ProjectileSystem::default(),
             "ProjectileRenderingSystem",
             &["OrderExecutorSystem"],
         )

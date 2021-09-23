@@ -2,6 +2,15 @@ use amethyst::core::ecs::{Builder, Entity, World, WorldExt};
 use amethyst::core::Transform;
 use amethyst::renderer::Camera;
 
+#[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone)]
+#[repr(u8)]
+pub enum CameraHeight {
+    // Bottom
+    Terrain = 0,
+    Projectiles,
+    // Top
+}
+
 pub fn some() {
     // let vision_registry = &*world.read_resource::<VisionRegistry>();
     // let map_registry = &*world.read_resource::<MapRegistry>();
@@ -45,7 +54,7 @@ pub fn initialize_camera(world: &mut World, dimensions: (f32, f32), offset: f32)
     transform.set_translation_xyz(
         dimensions.0 / 2.0 - offset,
         dimensions.1 / 2.0 - offset,
-        1.0,
+        100.0,
     );
 
     world
