@@ -34,8 +34,10 @@ fn main() -> amethyst::Result<()> {
     let input_bundle =
         InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
 
+    let mut world = World::empty();
+
     // App setup
-    let game_data = GameDataBuilder::default()
+    let mut game_data = GameDataBuilder::default()
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -55,7 +57,14 @@ fn main() -> amethyst::Result<()> {
             "OrderExecutorSystem",
             &["OrderCreatorSystem"],
         )
+        .with(
+            systems::rendering::projectiles::ProjectileSystem::default(),
+            "ProjectileRenderingSystem",
+            &["OrderExecutorSystem"],
+        )
         .with_bundle(TransformBundle::new())?;
+
+    // let res = game_data.build(&mut world);
 
     // #TODO fix state
     let mut game = Application::new(assets_dir, DemoState::default(), game_data)?;

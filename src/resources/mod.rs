@@ -12,6 +12,7 @@ use std::f32;
 
 pub mod map_generators;
 pub mod map_registry;
+pub mod sprites_registry;
 pub mod vision_registry;
 
 #[derive(Clone, Debug, Copy)]

@@ -10,6 +10,7 @@ use crate::systems::orders::Orders;
 use crate::utils::movement::get_real_location;
 
 use crate::components::equipment::EquipmentComponent;
+use crate::resources::sprites_registry::SpriteRegistry;
 use crate::state::helpers::equipment::get_equipment;
 use amethyst::assets::Handle;
 use amethyst::core::ecs::world::Generation;
@@ -38,6 +39,7 @@ impl DemoState {
 
             world.insert(world_vision_registry);
             world.insert(world_map_registry);
+            world.insert(SpriteRegistry::new(sprite.clone()))
         }
 
         {
