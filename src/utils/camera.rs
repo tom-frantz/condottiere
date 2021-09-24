@@ -7,6 +7,7 @@ use amethyst::renderer::Camera;
 pub enum CameraHeight {
     // Bottom
     Terrain = 0,
+    Units,
     Projectiles,
     // Top
 }

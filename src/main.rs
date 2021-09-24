@@ -34,8 +34,6 @@ fn main() -> amethyst::Result<()> {
     let input_bundle =
         InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
 
-    let mut world = World::empty();
-
     // App setup
     let mut game_data = GameDataBuilder::default()
         .with_bundle(
@@ -46,9 +44,10 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?
         .with_bundle(input_bundle)?
+        .with_bundle(systems::MyBundle::default())?
         // Systems
-        .with(
-            systems::orders::order_creator::OrderCreatorSystem::default(),
+        .with_system_desc(
+            systems::orders::order_creator::OrderCreatorSystemDesc::default(),
             "OrderCreatorSystem",
             &[],
         )
@@ -60,6 +59,11 @@ fn main() -> amethyst::Result<()> {
         .with(
             systems::rendering::projectiles::ProjectileSystem::default(),
             "ProjectileRenderingSystem",
+            &["OrderExecutorSystem"],
+        )
+        .with_system_desc(
+            systems::rendering::new_renders::RenderSystemDesc::default(),
+            "RenderSystem",
             &["OrderExecutorSystem"],
         )
         .with_bundle(TransformBundle::new())?;

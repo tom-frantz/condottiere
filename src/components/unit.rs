@@ -1,5 +1,6 @@
-use crate::components::equipment::EquipmentComponent;
+use crate::components::equipment::Equipment;
 use crate::systems::orders::Orders;
+use crate::utils::camera::CameraHeight;
 use crate::utils::movement::get_real_location;
 use amethyst::core::ecs::{Component, DenseVecStorage, Entity, World};
 use amethyst::core::Transform;
@@ -15,17 +16,21 @@ pub enum Team {
 
 #[derive(Debug, Clone)]
 pub struct Unit {
-    pub order: Orders,
+    // What they've been assigned to do as a higher level objective.
+    pub mission: Orders,
+    // What they're currently doing to achieve their order.
+    pub objective: Orders,
     pub hp: usize,
     pub engagement_distance: f32,
 }
 
 impl Unit {
-    pub fn new(hp: usize, order: Orders) -> Self {
+    pub fn new(hp: usize, goal: Orders) -> Self {
         Unit {
             hp,
-            order,
+            mission: goal,
             engagement_distance: 100.0,
+            objective: Orders::AwaitingOrders,
         }
     }
 
@@ -34,7 +39,7 @@ impl Unit {
     }
 
     pub fn set_objective(&mut self, order: Orders) {
-        self.order = order;
+        self.mission = order;
     }
 }
 
@@ -44,7 +49,7 @@ pub struct UnitBuilder {
     pos: (f32, f32),
     colour: Tint,
     sprite: Option<SpriteRender>,
-    equipment: EquipmentComponent,
+    equipment: Option<Equipment>,
 }
 
 impl UnitBuilder {
@@ -71,14 +76,14 @@ impl UnitBuilder {
         self
     }
 
-    pub fn equipment(mut self, equipment: EquipmentComponent) -> Self {
-        self.equipment = equipment;
+    pub fn equipment(mut self, equipment: Equipment) -> Self {
+        self.equipment = Some(equipment);
         self
     }
 
     pub fn create(mut self, world: &mut World) -> Entity {
         let mut transform = Transform::default();
-        transform.set_translation_xyz(self.pos.0, self.pos.1, 0.0);
+        transform.set_translation_xyz(self.pos.0, self.pos.1, CameraHeight::Units as u8 as f32);
 
         let hp = if self.hp == 0 { 20 } else { self.hp };
 
@@ -88,6 +93,10 @@ impl UnitBuilder {
             .with(self.colour)
             .with(self.sprite.unwrap())
             .with(Unit::new(hp, Orders::AwaitingOrders));
+
+        if self.equipment.is_some() {
+            entity = entity.with(self.equipment.unwrap());
+        }
 
         entity.build()
     }
