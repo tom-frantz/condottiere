@@ -62,7 +62,7 @@ impl<'s> System<'s> for OrderCreatorSystem {
         for (unit, equipment, transform, entity) in
             (&mut units, &equipment_components, &transforms, &*entities).join()
         {
-            let x: Option<Orders> = match unit.mission {
+            let next_order: Option<Orders> = match unit.mission {
                 Attack(opponent) => {
                     let opponent_pos = transforms.get(opponent).unwrap();
                     let delta_pos =
@@ -87,7 +87,8 @@ impl<'s> System<'s> for OrderCreatorSystem {
                         let unit_point = delta_pos.unit_point();
                         let dir: Map2d =
                             Direction::from_angle(unit_point.0 as f64, unit_point.1 as f64).into();
-                        Some(MoveTo(dir))
+                        Some(Attack(opponent))
+                        // Some(MoveTo(dir))
                     }
                 }
                 Retreat => None,
@@ -97,6 +98,10 @@ impl<'s> System<'s> for OrderCreatorSystem {
                 DigIn => None,
                 AwaitingOrders => None,
             };
+
+            if let Some(new_order) = next_order {
+                unit.objective = new_order;
+            }
         }
     }
 }

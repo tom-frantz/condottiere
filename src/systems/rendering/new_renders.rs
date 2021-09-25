@@ -3,6 +3,7 @@ use crate::resources::sprites_registry::SpriteRegistry;
 use crate::utils::camera::CameraHeight;
 use amethyst::core::ecs::shrev::EventChannel;
 use amethyst::core::ecs::{Entities, Read, ReaderId, Write, WriteStorage};
+use amethyst::core::math::Vector3;
 use amethyst::core::Transform;
 use amethyst::renderer::sprite::Sprites;
 use amethyst::renderer::SpriteRender;
@@ -56,17 +57,22 @@ impl<'s> System<'s> for RenderSystem {
     ) {
         for event in render_events.read(&mut self.render_events_reader_id) {
             match event {
-                RenderEvents::Projectile(projectile) => entities
-                    .build_entity()
-                    .with(projectile.clone(), &mut projectiles)
-                    .with(sprite_registry.get_default_sprite(), &mut sprites)
-                    .with(
-                        projectile
-                            .start
-                            .to_transform(CameraHeight::Projectiles as u8 as f32),
-                        &mut transforms,
-                    )
-                    .build(),
+                RenderEvents::Projectile(projectile) => {
+                    println!("DOING {:?}", projectile);
+
+                    let mut transform = projectile
+                        .start
+                        .to_transform(CameraHeight::Projectiles as u8 as f32);
+
+                    transform.set_scale(Vector3::new(0.5, 0.5, 1.0));
+
+                    entities
+                        .build_entity()
+                        .with(projectile.clone(), &mut projectiles)
+                        .with(sprite_registry.get_default_sprite(), &mut sprites)
+                        .with(transform, &mut transforms)
+                        .build()
+                }
             };
         }
     }

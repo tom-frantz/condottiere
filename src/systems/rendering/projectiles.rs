@@ -1,4 +1,5 @@
 use crate::components::projectile::Projectile;
+use crate::resources::PIXEL_SIZE;
 use crate::utils::movement::Map2d;
 use amethyst::core::ecs::shrev::EventChannel;
 use amethyst::core::ecs::*;
@@ -19,9 +20,13 @@ impl<'s> System<'s> for ProjectileSystem {
 
     fn run(&mut self, (mut transforms, mut projectiles, time, entities): Self::SystemData) {
         let delta = time.delta_seconds();
+        println!("{}", delta);
 
         // Handle shooting them
-        for (transform, projectile, entity) in (&mut transforms, &projectiles, &*entities).join() {
+        let mut first = true;
+        for (transform, projectile, entity) in
+            (&mut transforms, &mut projectiles, &*entities).join()
+        {
             let next = projectile.next(delta, Map2d::from_transform(transform));
 
             match next {
@@ -29,8 +34,18 @@ impl<'s> System<'s> for ProjectileSystem {
                     entities.delete(entity);
                 }
                 Some(point) => {
-                    transform.set_translation_x(point.0);
-                    transform.set_translation_y(point.1);
+                    println!(
+                        "{:?} {:?} {:?}",
+                        point,
+                        point.magnitude(),
+                        point.unit_point()
+                    );
+                    // if first {
+                    //     first = false;
+                    //     println!("{:?}", point);
+                    // }
+                    transform.set_translation_x(point.0 * PIXEL_SIZE);
+                    transform.set_translation_y(point.1 * PIXEL_SIZE);
                 }
             };
         }

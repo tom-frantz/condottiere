@@ -1,5 +1,6 @@
 use self::Direction::{Down, DownLeft, DownRight, Left, Right, Up, UpLeft, UpRight};
 use crate::resources::*;
+use amethyst::core::num::Pow;
 use amethyst::core::Transform;
 use std::f32::consts::PI;
 use std::ops::{Add, Sub};
@@ -57,12 +58,15 @@ pub struct Map2d(pub f32, pub f32);
 
 impl Map2d {
     pub fn magnitude(&self) -> f32 {
-        (self.0).hypot(self.1)
+        (self.0).hypot(self.1).abs()
     }
 
     pub fn unit_point(&self) -> Map2d {
         let mag = self.magnitude();
-        Map2d(self.0 / mag, self.1 / mag)
+        Map2d(
+            (self.0 / mag).pow(2) * self.0.signum(),
+            (self.1 / mag).pow(2) * self.1.signum(),
+        )
     }
 
     pub fn by_speed(&self, speed: f32) -> Map2d {
@@ -80,8 +84,15 @@ impl Map2d {
 
     pub fn to_transform(&self, z: f32) -> Transform {
         let mut transform = Transform::default();
-        transform.set_translation_xyz(self.0, self.1, z);
+        transform.set_translation_xyz(self.0 * PIXEL_SIZE, self.1 * PIXEL_SIZE, z);
         transform
+    }
+}
+
+impl From<&Transform> for Map2d {
+    fn from(transform: &Transform) -> Self {
+        let translation = transform.translation();
+        Map2d(translation.x / PIXEL_SIZE, translation.y / PIXEL_SIZE)
     }
 }
 

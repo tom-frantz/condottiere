@@ -7,6 +7,7 @@ pub struct Projectile {
     end: Map2d,
 
     vector: Map2d,
+    done: bool,
 
     speed: f32,
 }
@@ -17,23 +18,25 @@ impl Projectile {
         Projectile {
             start,
             end,
+            done: false,
             speed,
             vector,
         }
     }
 
-    pub fn next(&self, time_delta: f32, current_point: Map2d) -> Option<Map2d> {
-        if self.end == current_point {
+    pub fn next(&mut self, time_delta: f32, current_point: Map2d) -> Option<Map2d> {
+        if self.done {
             return None;
         }
 
         let unit = self.speed * time_delta;
+        let next = (current_point + self.vector.by_speed(unit));
 
-        if (self.end - current_point).magnitude() <= unit {
-            return Some(self.end);
+        if (self.end - current_point).magnitude() < (self.end - next).magnitude() {
+            None
+        } else {
+            Some(next)
         }
-
-        Some(current_point + self.vector.by_speed(unit))
     }
 }
 

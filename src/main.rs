@@ -44,7 +44,7 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?
         .with_bundle(input_bundle)?
-        .with_bundle(systems::MyBundle::default())?
+        .with_bundle(systems::SystemResourceBundle::default())?
         // Systems
         .with_system_desc(
             systems::orders::order_creator::OrderCreatorSystemDesc::default(),

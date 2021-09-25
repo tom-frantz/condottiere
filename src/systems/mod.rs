@@ -9,9 +9,9 @@ pub mod orders;
 pub mod rendering;
 
 #[derive(Debug, Default)]
-pub struct MyBundle;
+pub struct SystemResourceBundle;
 
-impl<'a, 'b> SystemBundle<'a, 'b> for MyBundle {
+impl<'a, 'b> SystemBundle<'a, 'b> for SystemResourceBundle {
     fn build(
         self,
         world: &mut World,
