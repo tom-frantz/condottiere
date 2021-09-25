@@ -58,8 +58,6 @@ impl<'s> System<'s> for RenderSystem {
         for event in render_events.read(&mut self.render_events_reader_id) {
             match event {
                 RenderEvents::Projectile(projectile) => {
-                    println!("DOING {:?}", projectile);
-
                     let mut transform = projectile
                         .start
                         .to_transform(CameraHeight::Projectiles as u8 as f32);

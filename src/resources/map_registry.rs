@@ -104,8 +104,6 @@ impl MapRegistry {
             .clone()
             .count();
 
-        println!("{} {} {:?}", x, y, neighbours_source);
-
         neighbours_source
             .iter()
             .filter(|item| (**item).is_some())

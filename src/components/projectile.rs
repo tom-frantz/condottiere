@@ -7,7 +7,6 @@ pub struct Projectile {
     end: Map2d,
 
     vector: Map2d,
-    done: bool,
 
     speed: f32,
 }
@@ -18,17 +17,12 @@ impl Projectile {
         Projectile {
             start,
             end,
-            done: false,
             speed,
             vector,
         }
     }
 
     pub fn next(&mut self, time_delta: f32, current_point: Map2d) -> Option<Map2d> {
-        if self.done {
-            return None;
-        }
-
         let unit = self.speed * time_delta;
         let next = (current_point + self.vector.by_speed(unit));
 

@@ -20,7 +20,6 @@ impl<'s> System<'s> for ProjectileSystem {
 
     fn run(&mut self, (mut transforms, mut projectiles, time, entities): Self::SystemData) {
         let delta = time.delta_seconds();
-        println!("{}", delta);
 
         // Handle shooting them
         let mut first = true;
@@ -34,16 +33,6 @@ impl<'s> System<'s> for ProjectileSystem {
                     entities.delete(entity);
                 }
                 Some(point) => {
-                    println!(
-                        "{:?} {:?} {:?}",
-                        point,
-                        point.magnitude(),
-                        point.unit_point()
-                    );
-                    // if first {
-                    //     first = false;
-                    //     println!("{:?}", point);
-                    // }
                     transform.set_translation_x(point.0 * PIXEL_SIZE);
                     transform.set_translation_y(point.1 * PIXEL_SIZE);
                 }

@@ -73,22 +73,14 @@ impl<'s> System<'s> for OrderCreatorSystem {
                     // Check if the unit is in range, then set objectives
                     if delta_pos.magnitude() * TILE_REAL_SIZE <= range {
                         unit.objective = Orders::Attack(opponent.clone());
-                        // if add_graphics {
-                        //     let projectile = Projectile::new(
-                        //         Map2d::from_transform(transform),
-                        //         Map2d::from_transform(opponent_pos),
-                        //         3.0 * 2.0 * 2.0,
-                        //     );
-                        //     projectiles_entities.push(projectile);
-                        // };
                         None
                     } else {
                         // If not in range, change the objective to move close enough to engage.
                         let unit_point = delta_pos.unit_point();
                         let dir: Map2d =
                             Direction::from_angle(unit_point.0 as f64, unit_point.1 as f64).into();
-                        Some(Attack(opponent))
-                        // Some(MoveTo(dir))
+
+                        Some(MoveTo(dir))
                     }
                 }
                 Retreat => None,
