@@ -24,7 +24,7 @@ impl Projectile {
 
     pub fn next(&mut self, time_delta: f32, current_point: Map2d) -> Option<Map2d> {
         let unit = self.speed * time_delta;
-        let next = (current_point + self.vector.by_speed(unit));
+        let next = current_point + self.vector.by_speed(unit);
 
         if (self.end - current_point).magnitude() < (self.end - next).magnitude() {
             None

@@ -1,11 +1,10 @@
-use amethyst::core::approx::UlpsEq;
 use std::ops::{Add, Sub};
 
 pub const PIXEL_SIZE: f32 = 2.0;
 pub const GRID_SIZE: usize = 10;
 
-pub const BUFFER: f32 = (PIXEL_SIZE * 3.0);
-pub const CAMERA_DIMENSIONS: f32 = (GRID_SIZE as f32 * PIXEL_SIZE) + BUFFER;
+pub const BUFFER: f32 = PIXEL_SIZE * 3.0;
+pub const CAMERA_DIMENSIONS: f32 = GRID_SIZE as f32 * PIXEL_SIZE + BUFFER;
 pub const PIXEL_OFFSET: f32 = BUFFER / PIXEL_SIZE + (PIXEL_SIZE / 2.0);
 
 use std::f32;

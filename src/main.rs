@@ -51,8 +51,8 @@ fn main() -> amethyst::Result<()> {
             "OrderCreatorSystem",
             &[],
         )
-        .with(
-            systems::orders::order_executor::OrderExecutorSystem::default(),
+        .with_system_desc(
+            systems::orders::order_executor::OrderExecutorSystemDesc::default(),
             "OrderExecutorSystem",
             &["OrderCreatorSystem"],
         )
@@ -64,6 +64,11 @@ fn main() -> amethyst::Result<()> {
         .with_system_desc(
             systems::rendering::new_renders::RenderSystemDesc::default(),
             "RenderSystem",
+            &["OrderExecutorSystem"],
+        )
+        .with_system_desc(
+            systems::orders::effects_system::EffectsSystemDesc::default(),
+            "EffectsSystem",
             &["OrderExecutorSystem"],
         )
         .with_bundle(TransformBundle::new())?;

@@ -1,5 +1,4 @@
 use amethyst::core::ecs::*;
-use amethyst::prelude::*;
 
 #[derive(Clone, Debug)]
 pub enum FireType {
@@ -89,6 +88,10 @@ pub struct Equipment {
 impl Equipment {
     pub fn new(equipment: EquipmentModel, amount: usize) -> Self {
         Equipment { equipment, amount }
+    }
+
+    pub fn deal_damage(&self) -> f32 {
+        self.equipment.stats().damage * self.amount as f32
     }
 }
 

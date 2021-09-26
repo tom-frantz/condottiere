@@ -24,6 +24,7 @@ impl Direction {
 
         let degrees = x.atan2(y) * 180.0 / std::f64::consts::PI;
         let direction = (((degrees + tolerance).rem_euclid(360.0)) / angle_bracket).floor();
+        println!("x {}, y {}, dir {}", x, y, direction);
         match direction {
             0_f64 => Up,
             1_f64 => UpRight,
@@ -86,6 +87,13 @@ impl Map2d {
         let mut transform = Transform::default();
         transform.set_translation_xyz(self.0 * PIXEL_SIZE, self.1 * PIXEL_SIZE, z);
         transform
+    }
+}
+
+impl From<&mut Transform> for Map2d {
+    fn from(transform: &mut Transform) -> Self {
+        let translation = transform.translation();
+        Map2d(translation.x / PIXEL_SIZE, translation.y / PIXEL_SIZE)
     }
 }
 
@@ -152,4 +160,42 @@ pub fn move_at_speed(target: &Transform, source: &mut Transform, speed: f64) {
     } else {
         y_percent.max(y)
     }); // +y
+}
+
+#[cfg(test)]
+mod test {
+    use crate::utils::movement::Map2d;
+
+    #[test]
+    fn magnitudes() {
+        assert_eq!(Map2d(1.0, 1.0).magnitude(), 2_f32.sqrt());
+        assert_eq!(Map2d(-1.0, 1.0).magnitude(), 2_f32.sqrt());
+        assert_eq!(Map2d(1.0, -1.0).magnitude(), 2_f32.sqrt());
+        assert_eq!(Map2d(-1.0, -1.0).magnitude(), 2_f32.sqrt());
+    }
+
+    #[test]
+    fn unit() {
+        assert_eq!(Map2d(1.0, 1.0).unit_point(), Map2d(0.49999997, 0.49999997));
+        assert_eq!(
+            Map2d(-1.0, 1.0).unit_point(),
+            Map2d(-0.49999997, 0.49999997)
+        );
+        assert_eq!(
+            Map2d(1.0, -1.0).unit_point(),
+            Map2d(0.49999997, -0.49999997)
+        );
+        assert_eq!(
+            Map2d(-1.0, -1.0).unit_point(),
+            Map2d(-0.49999997, -0.49999997)
+        );
+    }
+
+    #[test]
+    fn by_speed() {
+        assert_eq!(
+            Map2d(-1.0, 1.0).by_speed(2.0),
+            Map2d(-0.99999994, 0.99999994)
+        );
+    }
 }

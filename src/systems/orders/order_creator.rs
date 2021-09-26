@@ -3,19 +3,15 @@ use crate::components::projectile::Projectile;
 use crate::components::terrain::{Terrain, TILE_REAL_SIZE};
 use crate::components::unit::Unit;
 use crate::resources::sprites_registry::SpriteRegistry;
-use crate::systems::orders::Orders;
 use crate::systems::orders::Orders::*;
+use crate::systems::orders::{MoveToOrder, Orders};
 use crate::systems::rendering::new_renders::RenderEvents;
 use crate::utils::movement::{Direction, Map2d};
 use amethyst::core::ecs::*;
 use amethyst::core::{Time, Transform};
 use amethyst::prelude::*;
 use amethyst::renderer::SpriteRender;
-use amethyst::{
-    core::SystemDesc,
-    derive::SystemDesc,
-    ecs::{System, SystemData, World},
-};
+use amethyst::{core::SystemDesc, derive::SystemDesc};
 
 #[derive(SystemDesc)]
 #[system_desc(name(OrderCreatorSystemDesc))]
@@ -62,11 +58,10 @@ impl<'s> System<'s> for OrderCreatorSystem {
         for (unit, equipment, transform, entity) in
             (&mut units, &equipment_components, &transforms, &*entities).join()
         {
-            let next_order: Option<Orders> = match unit.mission {
+            let next_order: Option<Orders> = match &unit.mission {
                 Attack(opponent) => {
-                    let opponent_pos = transforms.get(opponent).unwrap();
-                    let delta_pos =
-                        (Map2d::from_transform(opponent_pos) - Map2d::from_transform(transform));
+                    let opponent_pos = transforms.get(opponent.clone()).unwrap();
+                    let delta_pos = (Map2d::from(opponent_pos) - Map2d::from(transform));
 
                     let range = equipment.equipment.stats().range;
 
@@ -75,12 +70,19 @@ impl<'s> System<'s> for OrderCreatorSystem {
                         unit.objective = Orders::Attack(opponent.clone());
                         None
                     } else {
-                        // If not in range, change the objective to move close enough to engage.
-                        let unit_point = delta_pos.unit_point();
-                        let dir: Map2d =
-                            Direction::from_angle(unit_point.0 as f64, unit_point.1 as f64).into();
-
-                        Some(MoveTo(dir))
+                        if let MoveTo(_) = unit.objective {
+                            None
+                        } else {
+                            // If not in range, change the objective to move close enough to engage.
+                            let unit_point = delta_pos.unit_point();
+                            let dir =
+                                Direction::from_angle(unit_point.0 as f64, unit_point.1 as f64);
+                            println!("DIR {:?} {:?} {:?}", Map2d::from(transform), delta_pos, dir);
+                            Some(MoveTo(MoveToOrder::new(
+                                transform.into(),
+                                Map2d::from(dir) + transform.into(),
+                            )))
+                        }
                     }
                 }
                 Retreat => None,

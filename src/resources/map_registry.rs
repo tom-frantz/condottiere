@@ -7,8 +7,6 @@ use amethyst::prelude::*;
 use amethyst::renderer::palette::rgb::Rgb;
 use amethyst::renderer::resources::Tint;
 use amethyst::renderer::SpriteRender;
-use std::any::Any;
-use std::iter::Enumerate;
 
 pub struct MapRegistry {
     pub rows: usize,
@@ -49,8 +47,8 @@ impl MapRegistry {
             for x in 0..columns {
                 let mut transform = Transform::default();
                 transform.set_translation_xyz(
-                    (x as f32 * PIXEL_SIZE),
-                    (y as f32 * PIXEL_SIZE),
+                    x as f32 * PIXEL_SIZE,
+                    y as f32 * PIXEL_SIZE,
                     CameraHeight::Terrain as u8 as f32,
                 );
 

@@ -4,7 +4,7 @@ use crate::utils::camera::CameraHeight;
 use amethyst::core::ecs::shrev::EventChannel;
 use amethyst::core::ecs::{Entities, Read, ReaderId, Write, WriteStorage};
 use amethyst::core::math::Vector3;
-use amethyst::core::Transform;
+use amethyst::core::{Time, Transform};
 use amethyst::renderer::sprite::Sprites;
 use amethyst::renderer::SpriteRender;
 use amethyst::shred::WriteExpect;
@@ -13,6 +13,8 @@ use amethyst::{
     derive::SystemDesc,
     ecs::{System, SystemData, World},
 };
+
+const UPDATE_TIME: f32 = 0.2;
 
 #[derive(Debug)]
 pub enum RenderEvents {
@@ -24,12 +26,15 @@ pub enum RenderEvents {
 pub struct RenderSystem {
     #[system_desc(event_channel_reader)]
     render_events_reader_id: ReaderId<RenderEvents>,
+    #[system_desc(skip)]
+    last_update: f32,
 }
 
 impl RenderSystem {
     pub fn new(render_events_reader_id: ReaderId<RenderEvents>) -> Self {
         RenderSystem {
             render_events_reader_id,
+            last_update: 0.0,
         }
     }
 }
@@ -37,6 +42,7 @@ impl RenderSystem {
 impl<'s> System<'s> for RenderSystem {
     type SystemData = (
         Read<'s, EventChannel<RenderEvents>>,
+        Read<'s, Time>,
         Entities<'s>,
         WriteExpect<'s, SpriteRegistry>,
         WriteStorage<'s, Projectile>,
@@ -48,6 +54,7 @@ impl<'s> System<'s> for RenderSystem {
         &mut self,
         (
             render_events,
+            time,
             mut entities,
             mut sprite_registry,
             mut projectiles,
@@ -55,9 +62,21 @@ impl<'s> System<'s> for RenderSystem {
             mut transforms,
         ): Self::SystemData,
     ) {
+        let delta = time.delta_seconds();
+        self.last_update += delta;
+        let update_sprites = if self.last_update > UPDATE_TIME {
+            self.last_update -= UPDATE_TIME;
+            true
+        } else {
+            false
+        };
         for event in render_events.read(&mut self.render_events_reader_id) {
             match event {
                 RenderEvents::Projectile(projectile) => {
+                    if !update_sprites {
+                        continue;
+                    }
+                    println!("Update_sprite! {}", self.last_update);
                     let mut transform = projectile
                         .start
                         .to_transform(CameraHeight::Projectiles as u8 as f32);
@@ -69,8 +88,9 @@ impl<'s> System<'s> for RenderSystem {
                         .with(projectile.clone(), &mut projectiles)
                         .with(sprite_registry.get_default_sprite(), &mut sprites)
                         .with(transform, &mut transforms)
-                        .build()
+                        .build();
                 }
+                _ => {}
             };
         }
     }

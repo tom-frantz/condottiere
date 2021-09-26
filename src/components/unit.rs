@@ -22,6 +22,7 @@ pub struct Unit {
     pub objective: Orders,
     pub hp: usize,
     pub engagement_distance: f32,
+    pub speed: f32,
 }
 
 impl Unit {
@@ -31,6 +32,7 @@ impl Unit {
             mission: goal,
             engagement_distance: 100.0,
             objective: Orders::AwaitingOrders,
+            speed: 50.0,
         }
     }
 

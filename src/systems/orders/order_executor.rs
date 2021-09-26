@@ -3,6 +3,7 @@ use crate::components::projectile::Projectile;
 use crate::components::terrain::{Terrain, TILE_REAL_SIZE};
 use crate::components::unit::Unit;
 use crate::resources::sprites_registry::SpriteRegistry;
+use crate::systems::orders::effects_system::EffectEvents;
 use crate::systems::orders::Orders;
 use crate::systems::orders::Orders::*;
 use crate::systems::rendering::new_renders::RenderEvents;
@@ -15,6 +16,11 @@ use amethyst::core::{Time, Transform};
 use amethyst::prelude::*;
 use amethyst::renderer::sprite::Sprites;
 use amethyst::renderer::{Camera, SpriteRender};
+use amethyst::{
+    core::SystemDesc,
+    derive::SystemDesc,
+    ecs::{System, SystemData, World},
+};
 use std::ops::Sub;
 
 enum Action {
@@ -22,28 +28,40 @@ enum Action {
     Attack(Entity),
 }
 
-#[derive(Default)]
+#[derive(Debug, SystemDesc)]
+#[system_desc(name(OrderExecutorSystemDesc))]
 pub struct OrderExecutorSystem {
+    #[system_desc(skip)]
     last_push: f32,
+    #[system_desc(event_channel_reader)]
+    effects_system_event_id: ReaderId<EffectEvents>,
 }
 
-impl OrderExecutorSystem {}
+impl OrderExecutorSystem {
+    fn new(effects_system_event_id: ReaderId<EffectEvents>) -> Self {
+        OrderExecutorSystem {
+            last_push: 0.0,
+            effects_system_event_id,
+        }
+    }
+}
 
 impl<'s> System<'s> for OrderExecutorSystem {
     type SystemData = (
         WriteStorage<'s, Unit>,
-        WriteExpect<'s, EventChannel<RenderEvents>>,
+        WriteExpect<'s, EventChannel<EffectEvents>>,
         ReadStorage<'s, Equipment>,
-        ReadStorage<'s, Transform>,
+        WriteStorage<'s, Transform>,
         Entities<'s>,
         Read<'s, Time>,
     );
 
     fn run(
         &mut self,
-        (mut units, mut events, equipment_components, transforms, entities, time): Self::SystemData,
+        (mut units, mut events, equipment_components, mut transforms, entities, time): Self::SystemData,
     ) {
-        self.last_push += time.delta_seconds();
+        let delta = time.delta_seconds();
+        self.last_push += delta;
         let add_graphics = if self.last_push >= 1.0 {
             self.last_push -= 1.0;
             true
@@ -56,16 +74,21 @@ impl<'s> System<'s> for OrderExecutorSystem {
         for (unit, equipment, transform, entity) in
             (&mut units, &equipment_components, &transforms, &*entities).join()
         {
-            match unit.objective {
+            match &mut unit.objective {
                 Attack(opponent) => {
-                    let opponent_pos = transforms.get(opponent).unwrap();
-                    if add_graphics {
-                        events.single_write(RenderEvents::Projectile(Projectile::new(
-                            transform.into(),
-                            opponent_pos.into(),
-                            5.0,
-                        )))
-                    }
+                    events.single_write(EffectEvents::Damage(
+                        entity,
+                        opponent.clone(),
+                        equipment.deal_damage(),
+                    ))
+                    // let opponent_pos = transforms.get(opponent.clone()).unwrap();
+                    // if add_graphics {
+                    //     events.single_write(RenderEvents::Projectile(Projectile::new(
+                    //         transform.into(),
+                    //         opponent_pos.into(),
+                    //         5.0,
+                    //     )))
+                    // }
                     //     (Map2d::from_transform(opponent_pos) - Map2d::from_transform(transform));
                     // let opponent_pos = transforms.get(opponent).unwrap();
                     // let delta_pos =
@@ -90,32 +113,28 @@ impl<'s> System<'s> for OrderExecutorSystem {
                     // }
                 }
                 Retreat => {}
-                MoveTo(p) => {}
+                MoveTo(p) => {
+                    // println!("Distance Travelled: {}", unit.speed * delta);
+                    let append_vector = p.move_by(unit.speed * delta);
+                    if let Some(vector) = append_vector {
+                        events.single_write(EffectEvents::Move(
+                            entity,
+                            Map2d::from(transform) + vector,
+                        ));
+                        unit.objective = Orders::AwaitingOrders;
+                        // unit.mission = Orders::AwaitingOrders;
+                    }
+                    // events.single_write(EffectEvents::Move(entity, unit.speed * delta))
+                    // if let Some(p) = p.move_by(unit.speed) {
+                    //     transform.append_translation_xyz(p.0, p.1, 0.0);
+                    // };
+                }
                 Hold => {}
                 Ambush => {}
                 DigIn => {}
                 AwaitingOrders => {}
             };
         }
-
-        // let sprite = sprite_registry.get_default_sprite();
-        //
-        // for projectile in projectiles_entities {
-        //     let mut transform = Transform::default();
-        //     transform.set_translation_xyz(
-        //         projectile.start.0,
-        //         projectile.start.1,
-        //         CameraHeight::Projectiles as u8 as f32,
-        //     );
-        //     transform.set_scale(Vector3::new(0.5, 0.5, 1.0));
-        //
-        //     entities
-        //         .build_entity()
-        //         .with(projectile, &mut projectiles)
-        //         .with(transform, &mut transforms)
-        //         .with(sprite.clone(), &mut sprites)
-        //         .build();
-        // }
     }
 }
 
