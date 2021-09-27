@@ -1,4 +1,5 @@
 # Summary
 
-- [Chapter 1](./chapter_1.md)
-- [Chapter 2](./chapter_1.md)
+- [Condottiere - Game Reference](./game/landing.md)
+- [Technical Notes and Implementation Details](./technical/landing.md)
+- [Journaling](./journal/landing.md)
