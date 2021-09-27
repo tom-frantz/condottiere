@@ -2,10 +2,9 @@ use crate::components::projectile::Projectile;
 use crate::resources::sprites_registry::SpriteRegistry;
 use crate::utils::camera::CameraHeight;
 use amethyst::core::ecs::shrev::EventChannel;
-use amethyst::core::ecs::{Entities, Read, ReaderId, Write, WriteStorage};
+use amethyst::core::ecs::{Entities, Read, ReaderId, WriteStorage};
 use amethyst::core::math::Vector3;
 use amethyst::core::{Time, Transform};
-use amethyst::renderer::sprite::Sprites;
 use amethyst::renderer::SpriteRender;
 use amethyst::shred::WriteExpect;
 use amethyst::{
@@ -55,8 +54,8 @@ impl<'s> System<'s> for RenderSystem {
         (
             render_events,
             time,
-            mut entities,
-            mut sprite_registry,
+            entities,
+            sprite_registry,
             mut projectiles,
             mut sprites,
             mut transforms,
@@ -90,7 +89,6 @@ impl<'s> System<'s> for RenderSystem {
                         .with(transform, &mut transforms)
                         .build();
                 }
-                _ => {}
             };
         }
     }

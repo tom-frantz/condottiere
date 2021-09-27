@@ -25,15 +25,15 @@ impl Direction {
         let degrees = x.atan2(y) * 180.0 / std::f64::consts::PI;
         let direction = (((degrees + tolerance).rem_euclid(360.0)) / angle_bracket).floor();
         println!("x {}, y {}, dir {}", x, y, direction);
-        match direction {
-            0_f64 => Up,
-            1_f64 => UpRight,
-            2_f64 => Right,
-            3_f64 => DownRight,
-            4_f64 => Down,
-            5_f64 => DownLeft,
-            6_f64 => Left,
-            7_f64 => UpLeft,
+        match direction as usize {
+            0 => Up,
+            1 => UpRight,
+            2 => Right,
+            3 => DownRight,
+            4 => Down,
+            5 => DownLeft,
+            6 => Left,
+            7 => UpLeft,
             _ => panic!("Error getting direction from vector ({}, {})", x, y),
         }
     }
@@ -141,7 +141,7 @@ pub fn get_real_location(x: usize, y: usize) -> (f32, f32) {
     (x as f32 * PIXEL_SIZE, y as f32 * PIXEL_SIZE)
 }
 
-pub fn move_at_speed(target: &Transform, source: &mut Transform, speed: f64) {
+pub fn _move_at_speed(target: &Transform, source: &mut Transform, speed: f64) {
     let x = target.translation().x - source.translation().x;
     let y = target.translation().y - source.translation().y;
 

@@ -9,7 +9,6 @@ use crate::systems::rendering::new_renders::RenderEvents;
 use crate::utils::movement::{Direction, Map2d};
 use amethyst::core::ecs::*;
 use amethyst::core::{Time, Transform};
-use amethyst::prelude::*;
 use amethyst::renderer::SpriteRender;
 use amethyst::{core::SystemDesc, derive::SystemDesc};
 
@@ -47,22 +46,22 @@ impl<'s> System<'s> for OrderCreatorSystem {
             mut units,
             equipment_components,
             transforms,
-            projectiles,
-            sprites,
-            sprite_registry,
-            terrain,
+            _projectiles,
+            _sprites,
+            _sprite_registry,
+            _terrain,
             entities,
-            time,
+            _time,
         ): Self::SystemData,
     ) {
-        for (unit, equipment, transform, entity) in
+        for (unit, equipment, transform, _entity) in
             (&mut units, &equipment_components, &transforms, &*entities).join()
         {
             let next_order: Option<Orders> = match &unit.mission {
                 Attack(opponent) => {
                     let opponent_pos = transforms.get(opponent.clone()).unwrap();
-                    let delta_pos = (Map2d::from(opponent_pos) - Map2d::from(transform));
 
+                    let delta_pos = Map2d::from(opponent_pos) - Map2d::from(transform);
                     let range = equipment.equipment.stats().range;
 
                     // Check if the unit is in range, then set objectives
@@ -86,7 +85,7 @@ impl<'s> System<'s> for OrderCreatorSystem {
                     }
                 }
                 Retreat => None,
-                MoveTo(p) => None,
+                MoveTo(_p) => None,
                 Hold => None,
                 Ambush => None,
                 DigIn => None,

@@ -31,7 +31,7 @@ pub struct MoveToOrder {
 
 impl MoveToOrder {
     pub fn new(current: Map2d, to: Map2d) -> Self {
-        let vector = (to - current);
+        let vector = to - current;
 
         println!(
             "vector.magnitude() {} * TILE_REAL_SIZE = {}",

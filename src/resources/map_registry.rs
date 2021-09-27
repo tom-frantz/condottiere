@@ -17,7 +17,7 @@ pub struct MapRegistry {
 
 impl MapRegistry {
     pub fn new(rows: usize, columns: usize, world: &mut World, sprite: SpriteRender) -> Self {
-        let mut tiles: Vec<(Entity, f32)> = Self::generate_map(rows, columns, world, sprite);
+        let tiles: Vec<(Entity, f32)> = Self::generate_map(rows, columns, world, sprite);
         let mut vertex_heights: Vec<f32> = Vec::with_capacity((rows + 1) * (columns + 1));
 
         for y in 0..=rows {
@@ -111,7 +111,7 @@ impl MapRegistry {
     }
 
     pub fn get_tile(&self, x: usize, y: usize) -> Option<&(Entity, f32)> {
-        if x < 0 || y < 0 || x >= self.columns || y >= self.rows {
+        if x >= self.columns || y >= self.rows {
             return None;
         }
 
@@ -119,7 +119,7 @@ impl MapRegistry {
     }
 
     pub fn get_vertex(&self, x: usize, y: usize) -> Option<&f32> {
-        if x < 0 || y < 0 || x > self.columns || y > self.rows {
+        if x > self.columns || y > self.rows {
             return None;
         }
 

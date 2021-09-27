@@ -1,5 +1,4 @@
-use amethyst::assets::Handle;
-use amethyst::renderer::{SpriteRender, SpriteSheet};
+use amethyst::renderer::SpriteRender;
 
 pub struct SpriteRegistry {
     default_sprite: SpriteRender,

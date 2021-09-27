@@ -1,1 +1,1 @@
-pub struct LinearMap {}
+pub struct _LinearMap {}

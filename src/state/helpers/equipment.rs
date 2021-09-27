@@ -1,4 +1,4 @@
-use crate::components::equipment::{EquipmentModel, EquipmentType, FireType, WeaponProperties};
+use crate::components::equipment::{EquipmentModel, EquipmentType, FireType};
 
 // EQUIPMENT TYPES
 pub fn get_equipment() -> (

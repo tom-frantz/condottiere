@@ -12,7 +12,7 @@ pub enum CameraHeight {
     // Top
 }
 
-pub fn some() {
+pub fn _some() {
     // let vision_registry = &*world.read_resource::<VisionRegistry>();
     // let map_registry = &*world.read_resource::<MapRegistry>();
 

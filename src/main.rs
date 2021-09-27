@@ -35,7 +35,7 @@ fn main() -> amethyst::Result<()> {
         InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
 
     // App setup
-    let mut game_data = GameDataBuilder::default()
+    let game_data = GameDataBuilder::default()
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -73,9 +73,6 @@ fn main() -> amethyst::Result<()> {
         )
         .with_bundle(TransformBundle::new())?;
 
-    // let res = game_data.build(&mut world);
-
-    // #TODO fix state
     let mut game = Application::new(assets_dir, DemoState::default(), game_data)?;
     game.run();
 

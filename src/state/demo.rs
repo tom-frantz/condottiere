@@ -7,22 +7,14 @@ use crate::resources::map_registry::MapRegistry;
 use crate::resources::vision_registry::VisionRegistry;
 use crate::resources::*;
 use crate::systems::orders::Orders;
-use crate::utils::movement::get_real_location;
 
 use crate::components::equipment::Equipment;
 use crate::resources::sprites_registry::SpriteRegistry;
 use crate::state::helpers::equipment::get_equipment;
-use crate::systems::rendering::new_renders::RenderEvents;
 use amethyst::assets::Handle;
-use amethyst::core::ecs::world::Generation;
-use amethyst::core::Transform;
 use amethyst::ecs::Entity;
 use amethyst::prelude::*;
-use amethyst::renderer::palette::rgb::Rgb;
-use amethyst::renderer::resources::Tint;
 use amethyst::renderer::{SpriteRender, SpriteSheet};
-use amethyst::shrev::EventChannel;
-use std::num::NonZeroI32;
 
 #[derive(Default, Debug)]
 pub struct DemoState {
@@ -50,14 +42,14 @@ impl DemoState {
 
             let player_unit = Unit::build_entity()
                 .pos(1, 1)
-                .hp(1000)
+                .hp(1000.0)
                 .team(Team::Player)
                 .sprite(sprite.clone())
                 .equipment(Equipment::new(pukka_2, 100))
                 .create(world);
             let enemy_unit = Unit::build_entity()
                 .pos(8, 8)
-                .hp(1000)
+                .hp(1000.0)
                 .team(Team::Enemy)
                 .sprite(sprite)
                 .equipment(Equipment::new(pukka_1, 100))
@@ -79,7 +71,7 @@ impl DemoState {
 
 impl SimpleState for DemoState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let mut world = data.world;
+        let world = data.world;
 
         world.register::<Unit>();
 

@@ -1,4 +1,5 @@
 use crate::components::equipment::Equipment;
+use crate::components::unit::DamageResult::{Alive, Dead};
 use crate::systems::orders::Orders;
 use crate::utils::camera::CameraHeight;
 use crate::utils::movement::get_real_location;
@@ -14,19 +15,24 @@ pub enum Team {
     Enemy,
 }
 
+pub enum DamageResult {
+    Alive,
+    Dead,
+}
+
 #[derive(Debug, Clone)]
 pub struct Unit {
     // What they've been assigned to do as a higher level objective.
     pub mission: Orders,
     // What they're currently doing to achieve their order.
     pub objective: Orders,
-    pub hp: usize,
+    pub hp: f32,
     pub engagement_distance: f32,
     pub speed: f32,
 }
 
 impl Unit {
-    pub fn new(hp: usize, goal: Orders) -> Self {
+    pub fn new(hp: f32, goal: Orders) -> Self {
         Unit {
             hp,
             mission: goal,
@@ -43,11 +49,21 @@ impl Unit {
     pub fn set_objective(&mut self, order: Orders) {
         self.mission = order;
     }
+
+    pub fn take_damage(&mut self, damage: f32) -> DamageResult {
+        self.hp -= damage;
+
+        if self.hp <= 0.0 {
+            Dead
+        } else {
+            Alive
+        }
+    }
 }
 
 #[derive(Default)]
 pub struct UnitBuilder {
-    hp: usize,
+    hp: f32,
     pos: (f32, f32),
     colour: Tint,
     sprite: Option<SpriteRender>,
@@ -68,7 +84,7 @@ impl UnitBuilder {
         self
     }
 
-    pub fn hp(mut self, hp: usize) -> Self {
+    pub fn hp(mut self, hp: f32) -> Self {
         self.hp = hp;
         self
     }
@@ -83,11 +99,11 @@ impl UnitBuilder {
         self
     }
 
-    pub fn create(mut self, world: &mut World) -> Entity {
+    pub fn create(self, world: &mut World) -> Entity {
         let mut transform = Transform::default();
         transform.set_translation_xyz(self.pos.0, self.pos.1, CameraHeight::Units as u8 as f32);
 
-        let hp = if self.hp == 0 { 20 } else { self.hp };
+        let hp: f32 = if self.hp == 0.0 { 20.0 } else { self.hp };
 
         let mut entity = world
             .create_entity()
