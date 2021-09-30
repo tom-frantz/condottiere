@@ -1,0 +1,9 @@
+[book]
+authors = ["Black-Tomcat"]
+language = "en"
+multilingual = false
+src = "book/src"
+title = "Condottiere Manual & Development Journal"
+
+[build]
+build-dir = "book/book"
