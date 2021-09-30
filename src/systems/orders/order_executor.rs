@@ -1,104 +1,100 @@
-use crate::components::projectile::Projectile;
-use crate::components::terrain::{Terrain, TILE_REAL_SIZE};
+use crate::components::equipment::Equipment;
 use crate::components::unit::Unit;
-use crate::resources::sprites_registry::SpriteRegistry;
+use crate::systems::orders::effects_system::EffectEvents;
+use crate::systems::orders::Orders;
 use crate::systems::orders::Orders::*;
-use crate::utils::camera::CameraHeight;
 use crate::utils::movement::Map2d;
 use amethyst::core::ecs::shrev::EventChannel;
 use amethyst::core::ecs::*;
-use amethyst::core::math::Vector3;
 use amethyst::core::{Time, Transform};
-use amethyst::prelude::*;
-use amethyst::renderer::sprite::Sprites;
-use amethyst::renderer::{Camera, SpriteRender};
+use amethyst::{
+    core::SystemDesc,
+    derive::SystemDesc,
+    ecs::{System, SystemData, World},
+};
 
 enum Action {
     Move((usize, usize)),
     Attack(Entity),
 }
 
-#[derive(Default)]
+#[derive(Debug, SystemDesc)]
+#[system_desc(name(OrderExecutorSystemDesc))]
 pub struct OrderExecutorSystem {
+    #[system_desc(skip)]
     last_push: f32,
+    #[system_desc(event_channel_reader)]
+    effects_system_event_id: ReaderId<EffectEvents>,
 }
 
-impl OrderExecutorSystem {}
+impl OrderExecutorSystem {
+    fn new(effects_system_event_id: ReaderId<EffectEvents>) -> Self {
+        OrderExecutorSystem {
+            last_push: 0.0,
+            effects_system_event_id,
+        }
+    }
+}
 
 impl<'s> System<'s> for OrderExecutorSystem {
     type SystemData = (
         WriteStorage<'s, Unit>,
+        WriteExpect<'s, EventChannel<EffectEvents>>,
+        ReadStorage<'s, Equipment>,
         WriteStorage<'s, Transform>,
-        WriteStorage<'s, Projectile>,
-        WriteStorage<'s, SpriteRender>,
-        ReadExpect<'s, SpriteRegistry>,
-        ReadStorage<'s, Terrain>,
         Entities<'s>,
         Read<'s, Time>,
     );
 
     fn run(
         &mut self,
-        (
-            mut units,
-            mut transforms,
-            mut projectiles,
-            mut sprites,
-            sprite_registry,
-            terrain,
-            entities,
-            time,
-        ): Self::SystemData,
+        (mut units, mut events, equipment_components, mut transforms, entities, time): Self::SystemData,
     ) {
-        self.last_push += time.delta_seconds();
-        let add_graphics = if self.last_push >= 1.0 {
-            self.last_push -= 1.0;
-            true
-        } else {
-            false
-        };
+        let delta = time.delta_seconds();
 
-        let mut projectiles_entities: Vec<Projectile> = Vec::new();
-
-        for (unit, transform, entity) in (&units, &transforms, &*entities).join() {
-            match unit.order {
-                Attack(opponent) => {
-                    let opponent_pos = transforms.get(opponent).unwrap();
-                    if add_graphics {
-                        let projectile = Projectile::new(
-                            Map2d::from_transform(transform),
-                            Map2d::from_transform(opponent_pos),
-                            3.0 * 2.0 * 2.0,
-                        );
-                        projectiles_entities.push(projectile)
+        for (unit, equipment, transform, entity) in
+            (&mut units, &equipment_components, &transforms, &*entities).join()
+        {
+            match &mut unit.objective {
+                Attack(opponent) => events.single_write(EffectEvents::Damage(
+                    entity,
+                    opponent.clone(),
+                    equipment.deal_damage() * delta,
+                )),
+                Retreat => {}
+                MoveTo(p) => {
+                    let append_vector = p.move_by(unit.speed * delta);
+                    if let Some(vector) = append_vector {
+                        events.single_write(EffectEvents::Move(
+                            entity,
+                            Map2d::from(transform) + vector,
+                        ));
+                        unit.objective = Orders::AwaitingOrders;
                     }
                 }
-                Retreat => {}
-                MoveTo((x, y)) => {}
                 Hold => {}
                 Ambush => {}
                 DigIn => {}
                 AwaitingOrders => {}
             };
         }
+    }
+}
 
-        let sprite = sprite_registry.get_default_sprite();
+#[cfg(test)]
+mod test {
+    use crate::utils::movement::Direction;
 
-        for projectile in projectiles_entities {
-            let mut transform = Transform::default();
-            transform.set_translation_xyz(
-                projectile.start.0,
-                projectile.start.1,
-                CameraHeight::Projectiles as u8 as f32,
-            );
-            transform.set_scale(Vector3::new(0.5, 0.5, 1.0));
+    #[test]
+    fn testing() {
+        let x: f64 = -1.0;
+        let y: f64 = -1.0;
+        let angle_bracket = 45.0;
+        let tolerance = angle_bracket / 2.0;
 
-            entities
-                .build_entity()
-                .with(projectile, &mut projectiles)
-                .with(transform, &mut transforms)
-                .with(sprite.clone(), &mut sprites)
-                .build();
-        }
+        let degrees = x.atan2(y) * 180.0 / std::f64::consts::PI;
+        let dir = ((degrees + tolerance).rem_euclid(360.0) / angle_bracket);
+        println!("{:?}", dir);
+        println!("{:?}", Direction::from_angle(x, y));
     }
 }

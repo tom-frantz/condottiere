@@ -7,11 +7,12 @@ use amethyst::renderer::Camera;
 pub enum CameraHeight {
     // Bottom
     Terrain = 0,
+    Units,
     Projectiles,
     // Top
 }
 
-pub fn some() {
+pub fn _some() {
     // let vision_registry = &*world.read_resource::<VisionRegistry>();
     // let map_registry = &*world.read_resource::<MapRegistry>();
 

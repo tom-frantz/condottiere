@@ -1,17 +1,13 @@
 use std::collections::{HashMap, HashSet};
-use std::f32::consts::PI;
-use std::ops::{Add, Sub};
 
-use amethyst::core::ecs::{Entities, ReadStorage};
-use amethyst::core::num::FloatConst;
-use bresenham::Bresenham;
+use amethyst::core::ecs::ReadStorage;
 use petgraph::graph::{NodeIndex, UnGraph};
 
 use crate::components::terrain::Terrain;
 use crate::resources::map_registry::MapRegistry;
 use crate::resources::HeightPoint;
 
-const UNIT_HEIGHT: f32 = 1.0;
+const _UNIT_HEIGHT: f32 = 1.0;
 
 pub struct VisionRegistry {
     vision: UnGraph<(usize, usize), f32>, // node is a location, edge is the vision percentage [0, 1]
@@ -20,7 +16,7 @@ pub struct VisionRegistry {
 }
 
 impl VisionRegistry {
-    pub fn new(map_registry: &MapRegistry, terrain: ReadStorage<Terrain>) -> Self {
+    pub fn new(map_registry: &MapRegistry, _terrain: ReadStorage<Terrain>) -> Self {
         let mut vision: UnGraph<(usize, usize), f32> = UnGraph::new_undirected();
         let mut graph_map: HashMap<(usize, usize), NodeIndex> = HashMap::new();
         let mut index_map: HashMap<NodeIndex, (usize, usize)> = HashMap::new();
@@ -54,7 +50,6 @@ impl VisionRegistry {
                         .get_vertex(x as usize, y.floor() as usize)
                         .unwrap();
                     let next = map_registry.get_vertex(x as usize, y as usize).unwrap();
-                    // println!("y: {} prev: {} next: {}", y, prev, next);
                     Some(((next - prev) * (y % 1.0)) + prev)
                 } else {
                     map_registry
@@ -64,8 +59,8 @@ impl VisionRegistry {
                 point
             });
 
-            for ((self_x, self_y), (self_entity, self_height)) in map_registry.iter() {
-                for ((x, y), (entity, height)) in map_registry.iter_from(self_x, self_y) {
+            for ((self_x, self_y), (_self_entity, self_height)) in map_registry.iter() {
+                for ((x, y), (_entity, height)) in map_registry.iter_from(self_x, self_y) {
                     let can_see = check_visibility(
                         (self_x as f32, self_y as f32, self_height).into(),
                         (x as f32, y as f32, height).into(),
@@ -73,7 +68,6 @@ impl VisionRegistry {
                     );
 
                     if can_see {
-                        // println!("{:?} can see {:?}", (self_x, self_y), (x, y));
                         vision.add_edge(
                             graph_map.get(&(x, y)).unwrap().clone(),
                             graph_map.get(&(self_x, self_y)).unwrap().clone(),
@@ -87,7 +81,6 @@ impl VisionRegistry {
                         );
                     }
                 }
-                // println!("Done {}, {}", self_x, self_y)
             }
         }
 
@@ -98,7 +91,7 @@ impl VisionRegistry {
         }
     }
 
-    pub fn get_visible(&self, pos: (usize, usize)) -> Option<HashSet<(usize, usize)>> {
+    pub fn _get_visible(&self, pos: (usize, usize)) -> Option<HashSet<(usize, usize)>> {
         let index = self.graph_map.get(&pos)?;
 
         let neighbours = self.vision.neighbors(index.clone());
@@ -135,8 +128,8 @@ where
     F: Fn(f32, f32) -> Option<f32>,
 {
     let difference: HeightPoint = end_point - start_point;
-    let magnitude: f32 = (difference.x.abs() + difference.y.abs());
-    let difference_hypot = difference.x.hypot(difference.y);
+    let magnitude: f32 = difference.x.abs() + difference.y.abs();
+    let _difference_hypot = difference.x.hypot(difference.y);
 
     let dx = difference.x / magnitude;
     let dy = difference.y / magnitude;
@@ -150,7 +143,7 @@ where
         count += 1;
 
         // Calculate the next point that intersects with a boundary
-        let mut next_point: HeightPoint = (
+        let next_point: HeightPoint = (
             get_next(current_point.x, difference.x),
             get_next(current_point.y, difference.y),
         )
@@ -177,15 +170,13 @@ where
         )
             .into();
 
-        let distance_travelled = current_point - start_point;
+        let _distance_travelled = current_point - start_point;
 
         current_point = current_point + distance_point;
-        // println!("{:?}", current_point);
 
         // Find the height
         let actual_height = get_vertex_lin_inter(current_point.x, current_point.y);
         if actual_height.unwrap() > (current_point.height + 1.0) {
-            // println!("{:?} > {:?}", actual_height, current_point);
             return false;
         }
     }
@@ -203,6 +194,5 @@ mod tests {
         let end_point: HeightPoint = (4.0, 2.0, 6.0).into();
 
         let is_visible = check_visibility(start_point, end_point, |x, y| Some(x + y));
-        println!("is visible: {}", is_visible);
     }
 }

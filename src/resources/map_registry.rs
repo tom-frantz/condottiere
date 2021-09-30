@@ -7,8 +7,6 @@ use amethyst::prelude::*;
 use amethyst::renderer::palette::rgb::Rgb;
 use amethyst::renderer::resources::Tint;
 use amethyst::renderer::SpriteRender;
-use std::any::Any;
-use std::iter::Enumerate;
 
 pub struct MapRegistry {
     pub rows: usize,
@@ -19,7 +17,7 @@ pub struct MapRegistry {
 
 impl MapRegistry {
     pub fn new(rows: usize, columns: usize, world: &mut World, sprite: SpriteRender) -> Self {
-        let mut tiles: Vec<(Entity, f32)> = Self::generate_map(rows, columns, world, sprite);
+        let tiles: Vec<(Entity, f32)> = Self::generate_map(rows, columns, world, sprite);
         let mut vertex_heights: Vec<f32> = Vec::with_capacity((rows + 1) * (columns + 1));
 
         for y in 0..=rows {
@@ -49,8 +47,8 @@ impl MapRegistry {
             for x in 0..columns {
                 let mut transform = Transform::default();
                 transform.set_translation_xyz(
-                    (x as f32 * PIXEL_SIZE),
-                    (y as f32 * PIXEL_SIZE),
+                    x as f32 * PIXEL_SIZE,
+                    y as f32 * PIXEL_SIZE,
                     CameraHeight::Terrain as u8 as f32,
                 );
 
@@ -104,8 +102,6 @@ impl MapRegistry {
             .clone()
             .count();
 
-        println!("{} {} {:?}", x, y, neighbours_source);
-
         neighbours_source
             .iter()
             .filter(|item| (**item).is_some())
@@ -115,7 +111,7 @@ impl MapRegistry {
     }
 
     pub fn get_tile(&self, x: usize, y: usize) -> Option<&(Entity, f32)> {
-        if x < 0 || y < 0 || x >= self.columns || y >= self.rows {
+        if x >= self.columns || y >= self.rows {
             return None;
         }
 
@@ -123,7 +119,7 @@ impl MapRegistry {
     }
 
     pub fn get_vertex(&self, x: usize, y: usize) -> Option<&f32> {
-        if x < 0 || y < 0 || x > self.columns || y > self.rows {
+        if x > self.columns || y > self.rows {
             return None;
         }
 

@@ -34,10 +34,8 @@ fn main() -> amethyst::Result<()> {
     let input_bundle =
         InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
 
-    let mut world = World::empty();
-
     // App setup
-    let mut game_data = GameDataBuilder::default()
+    let game_data = GameDataBuilder::default()
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
@@ -46,14 +44,15 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?
         .with_bundle(input_bundle)?
+        .with_bundle(systems::SystemResourceBundle::default())?
         // Systems
-        .with(
-            systems::orders::order_creator::OrderCreatorSystem::default(),
+        .with_system_desc(
+            systems::orders::order_creator::OrderCreatorSystemDesc::default(),
             "OrderCreatorSystem",
             &[],
         )
-        .with(
-            systems::orders::order_executor::OrderExecutorSystem::default(),
+        .with_system_desc(
+            systems::orders::order_executor::OrderExecutorSystemDesc::default(),
             "OrderExecutorSystem",
             &["OrderCreatorSystem"],
         )
@@ -62,11 +61,18 @@ fn main() -> amethyst::Result<()> {
             "ProjectileRenderingSystem",
             &["OrderExecutorSystem"],
         )
+        .with_system_desc(
+            systems::rendering::new_renders::RenderSystemDesc::default(),
+            "RenderSystem",
+            &["OrderExecutorSystem"],
+        )
+        .with_system_desc(
+            systems::orders::effects_system::EffectsSystemDesc::default(),
+            "EffectsSystem",
+            &["OrderExecutorSystem"],
+        )
         .with_bundle(TransformBundle::new())?;
 
-    // let res = game_data.build(&mut world);
-
-    // #TODO fix state
     let mut game = Application::new(assets_dir, DemoState::default(), game_data)?;
     game.run();
 
