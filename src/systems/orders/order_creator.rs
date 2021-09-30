@@ -59,29 +59,41 @@ impl<'s> System<'s> for OrderCreatorSystem {
         {
             let next_order: Option<Orders> = match &unit.mission {
                 Attack(opponent) => {
-                    let opponent_pos = transforms.get(opponent.clone()).unwrap();
+                    println!("{:?}", unit);
+                    let opponent_pos = transforms.get(opponent.clone());
 
-                    let delta_pos = Map2d::from(opponent_pos) - Map2d::from(transform);
-                    let range = equipment.equipment.stats().range;
+                    // Currently need this in as order_creator is based off the current mission.
+                    // TODO Clean up this mechanism so things like this aren't a problem?
+                    if let Some(opponent_pos) = opponent_pos {
+                        let delta_pos = Map2d::from(opponent_pos) - Map2d::from(transform);
+                        let range = equipment.equipment.stats().range;
 
-                    // Check if the unit is in range, then set objectives
-                    if delta_pos.magnitude() * TILE_REAL_SIZE <= range {
-                        unit.objective = Orders::Attack(opponent.clone());
-                        None
-                    } else {
-                        if let MoveTo(_) = unit.objective {
+                        // Check if the unit is in range, then set objectives
+                        if delta_pos.magnitude() * TILE_REAL_SIZE <= range {
+                            unit.objective = Orders::Attack(opponent.clone());
                             None
                         } else {
-                            // If not in range, change the objective to move close enough to engage.
-                            let unit_point = delta_pos.unit_point();
-                            let dir =
-                                Direction::from_angle(unit_point.0 as f64, unit_point.1 as f64);
-                            println!("DIR {:?} {:?} {:?}", Map2d::from(transform), delta_pos, dir);
-                            Some(MoveTo(MoveToOrder::new(
-                                transform.into(),
-                                Map2d::from(dir) + transform.into(),
-                            )))
+                            if let MoveTo(_) = unit.objective {
+                                None
+                            } else {
+                                // If not in range, change the objective to move close enough to engage.
+                                let unit_point = delta_pos.unit_point();
+                                let dir =
+                                    Direction::from_angle(unit_point.0 as f64, unit_point.1 as f64);
+                                println!(
+                                    "DIR {:?} {:?} {:?}",
+                                    Map2d::from(transform),
+                                    delta_pos,
+                                    dir
+                                );
+                                Some(MoveTo(MoveToOrder::new(
+                                    transform.into(),
+                                    Map2d::from(dir) + transform.into(),
+                                )))
+                            }
                         }
+                    } else {
+                        Some(AwaitingOrders)
                     }
                 }
                 Retreat => None,

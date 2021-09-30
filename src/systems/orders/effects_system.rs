@@ -53,6 +53,8 @@ impl<'s> System<'s> for EffectsSystem {
         &mut self,
         (effect_events, mut render_events, mut entities, mut transforms, mut units): Self::SystemData,
     ) {
+        let mut deletion_queue: Vec<Entity> = vec![];
+
         for event in effect_events.read(&mut self.effects_system_event_id) {
             match event {
                 EffectEvents::Move(entity, new_pos) => {
@@ -68,7 +70,8 @@ impl<'s> System<'s> for EffectsSystem {
 
                     match units.get_mut(target.clone()).unwrap().take_damage(*damage) {
                         DamageResult::Dead => {
-                            entities.delete(target.clone());
+                            deletion_queue.push(target.clone());
+                            // entities.delete(target.clone());
                             units.get_mut(source.clone()).unwrap().objective =
                                 Orders::AwaitingOrders;
                         }
@@ -82,6 +85,10 @@ impl<'s> System<'s> for EffectsSystem {
                     )));
                 }
             }
+        }
+
+        for entity in deletion_queue {
+            entities.delete(entity).unwrap()
         }
     }
 }
