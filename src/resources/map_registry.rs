@@ -1,6 +1,7 @@
 use crate::components::terrain::Terrain;
 use crate::resources::*;
 use crate::utils::camera::CameraHeight;
+use crate::utils::collections::Vec2d;
 use amethyst::core::ecs::Entity;
 use amethyst::core::Transform;
 use amethyst::prelude::*;
@@ -11,8 +12,8 @@ use amethyst::renderer::SpriteRender;
 pub struct MapRegistry {
     pub rows: usize,
     pub columns: usize,
-    tiles: Vec<(Entity, f32)>,
-    vertex_heights: Vec<f32>,
+    tiles: Vec2d<(Entity, f32)>,
+    vertex_heights: Vec2d<f32>,
 }
 
 impl MapRegistry {
@@ -30,8 +31,8 @@ impl MapRegistry {
         MapRegistry {
             rows,
             columns,
-            tiles,
-            vertex_heights,
+            tiles: Vec2d::from_vec(rows, columns, tiles),
+            vertex_heights: Vec2d::from_vec(rows + 1, columns + 1, vertex_heights),
         }
     }
 
@@ -111,19 +112,11 @@ impl MapRegistry {
     }
 
     pub fn get_tile(&self, x: usize, y: usize) -> Option<&(Entity, f32)> {
-        if x >= self.columns || y >= self.rows {
-            return None;
-        }
-
-        self.tiles.get(x + y * self.columns)
+        self.tiles.get(x, y)
     }
 
     pub fn get_vertex(&self, x: usize, y: usize) -> Option<&f32> {
-        if x > self.columns || y > self.rows {
-            return None;
-        }
-
-        self.vertex_heights.get(x + y * (self.columns + 1))
+        self.vertex_heights.get(x, y)
     }
 
     pub fn iter(&self) -> MapRegistryIterator {
