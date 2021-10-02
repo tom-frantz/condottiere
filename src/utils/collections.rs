@@ -27,7 +27,7 @@ impl<T> Vec2d<T> {
     }
 
     pub fn get(&self, x: usize, y: usize) -> Option<&T> {
-        if x >= self.columns || y >= self.rows {
+        if x < self.columns || y < self.rows {
             self.items.get(x + y * self.columns)
         } else {
             None
@@ -69,7 +69,7 @@ impl<T> Vec2dInterpolated<T> {
 
     // TODO interpolate properly with the triangle library
     // pub fn get(&self, x: f64, y: f64) -> Option<&T> {
-    //     if x >= self.columns as f64 || y >= self.rows as f64 {
+    //     if x < self.columns as f64 || y < self.rows as f64 {
     //         self.items.get(x + y * self.columns as f64)
     //     } else {
     //         None

@@ -145,8 +145,8 @@ impl<'a> MapRegistryIterator<'a> {
     }
 }
 
-impl Iterator for MapRegistryIterator<'_> {
-    type Item = ((usize, usize), (Entity, f32));
+impl<'a> Iterator for MapRegistryIterator<'a> {
+    type Item = ((usize, usize), &'a (Entity, f32));
 
     fn next(&mut self) -> Option<Self::Item> {
         let current = self.current;
@@ -164,6 +164,7 @@ impl Iterator for MapRegistryIterator<'_> {
 
         // Send back correct next item
         let (x, y) = current;
-        Some(((x, y), self.map_registry.get_tile(x, y).unwrap().clone()))
+        println!("{} {}", x, y);
+        Some(((x, y), self.map_registry.get_tile(x, y).unwrap()))
     }
 }
