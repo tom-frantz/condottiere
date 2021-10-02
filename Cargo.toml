@@ -10,6 +10,7 @@ rand = "^0.8"
 bresenham = "^0.1"
 petgraph = "^0.6"
 approx = "0.5.0"
+triangle = "0.1.353"
 
 [features]
 default = ["vulkan"]

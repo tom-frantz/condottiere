@@ -62,8 +62,8 @@ impl VisionRegistry {
             for ((self_x, self_y), (_self_entity, self_height)) in map_registry.iter() {
                 for ((x, y), (_entity, height)) in map_registry.iter_from(self_x, self_y) {
                     let can_see = check_visibility(
-                        (self_x as f32, self_y as f32, self_height).into(),
-                        (x as f32, y as f32, height).into(),
+                        (self_x as f32, self_y as f32, *self_height).into(),
+                        (x as f32, y as f32, *height).into(),
                         |x, y| get_vertex_lin_inter(x, y),
                     );
 
