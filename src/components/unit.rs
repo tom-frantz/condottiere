@@ -8,7 +8,8 @@ use amethyst::core::Transform;
 use amethyst::prelude::*;
 use amethyst::renderer::palette::rgb::Rgb;
 use amethyst::renderer::resources::Tint;
-use amethyst::renderer::SpriteRender;
+use amethyst::renderer::{Camera, SpriteRender};
+use amethyst::ui::{Anchor, Interactable, UiTransform};
 
 pub enum Team {
     Player,
@@ -102,6 +103,7 @@ impl UnitBuilder {
     pub fn create(self, world: &mut World) -> Entity {
         let mut transform = Transform::default();
         transform.set_translation_xyz(self.pos.0, self.pos.1, CameraHeight::Units as u8 as f32);
+        // let camera = world.read_storage::<Camera>();
 
         let hp: f32 = if self.hp == 0.0 { 20.0 } else { self.hp };
 
@@ -111,6 +113,18 @@ impl UnitBuilder {
             .with(self.colour)
             .with(self.sprite.unwrap())
             .with(Unit::new(hp, Orders::AwaitingOrders));
+
+        let ui_transform = UiTransform::new(
+            String::from(format!("Unit {:?}", entity.entity)), // id
+            Anchor::BottomLeft,                                // anchor
+            Anchor::BottomLeft,                                // pivot
+            200f32,                                            // x
+            200f32,                                            // y
+            100f32,                                            // z
+            200f32, // 200 seems to be a square?                                             // width
+            200f32, // height
+        );
+        entity = entity.with(ui_transform).with(Interactable);
 
         if self.equipment.is_some() {
             entity = entity.with(self.equipment.unwrap());

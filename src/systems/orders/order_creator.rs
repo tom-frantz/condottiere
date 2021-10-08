@@ -59,7 +59,6 @@ impl<'s> System<'s> for OrderCreatorSystem {
         {
             let next_order: Option<Orders> = match &unit.mission {
                 Attack(opponent) => {
-                    println!("{:?}", unit);
                     let opponent_pos = transforms.get(opponent.clone());
 
                     // Currently need this in as order_creator is based off the current mission.

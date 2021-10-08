@@ -19,7 +19,8 @@ mod state;
 mod systems;
 mod utils;
 
-use state::demo::DemoState;
+use amethyst::ui::{RenderUi, UiBundle};
+use state::game_state::GameState;
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -36,14 +37,17 @@ fn main() -> amethyst::Result<()> {
 
     // App setup
     let game_data = GameDataBuilder::default()
+        .with_bundle(TransformBundle::new())?
+        .with_bundle(input_bundle)?
+        .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config_path)?.with_clear([0, 0, 0, 1]),
                 )
-                .with_plugin(RenderFlat2D::default()),
+                .with_plugin(RenderFlat2D::default())
+                .with_plugin(RenderUi::default()),
         )?
-        .with_bundle(input_bundle)?
         .with_bundle(systems::SystemResourceBundle::default())?
         // Systems
         .with_system_desc(
@@ -71,9 +75,13 @@ fn main() -> amethyst::Result<()> {
             "EffectsSystem",
             &["OrderExecutorSystem"],
         )
-        .with_bundle(TransformBundle::new())?;
+        .with(
+            systems::utils::TransformUiMatcher::default(),
+            "TransformUiMatcherSystem",
+            &[],
+        );
 
-    let mut game = Application::new(assets_dir, DemoState::default(), game_data)?;
+    let mut game = Application::new(assets_dir, GameState::default(), game_data)?;
     game.run();
 
     Ok(())

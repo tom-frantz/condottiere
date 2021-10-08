@@ -66,8 +66,6 @@ impl<'s> System<'s> for EffectsSystem {
                     let source_transform = transforms.get(source.clone()).unwrap();
                     let target_transform = transforms.get(target.clone()).unwrap();
 
-                    println!("damage {}", damage);
-
                     match units.get_mut(target.clone()).unwrap().take_damage(*damage) {
                         DamageResult::Dead => {
                             deletion_queue.push(target.clone());

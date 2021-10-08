@@ -75,7 +75,6 @@ impl<'s> System<'s> for RenderSystem {
                     if !update_sprites {
                         continue;
                     }
-                    println!("Update_sprite! {}", self.last_update);
                     let mut transform = projectile
                         .start
                         .to_transform(CameraHeight::Projectiles as u8 as f32);

@@ -55,7 +55,7 @@ pub fn initialize_camera(world: &mut World, dimensions: (f32, f32), offset: f32)
     transform.set_translation_xyz(
         dimensions.0 / 2.0 - offset,
         dimensions.1 / 2.0 - offset,
-        100.0,
+        1000.0,
     );
 
     world

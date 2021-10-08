@@ -7,6 +7,7 @@ use amethyst::Error;
 
 pub mod orders;
 pub mod rendering;
+pub mod utils;
 
 #[derive(Debug, Default)]
 pub struct SystemResourceBundle;
